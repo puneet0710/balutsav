@@ -267,7 +267,69 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return destination;
   }
+  _openPopupForSearch(context,text) {
+    fileName = file != null ? basename(file!.path) : 'No File Selected';
+    //_checkConnectivityState();
+    Alert(
+      context: context,
+      title: "Enter Email to search the records",
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              _connectivityResult.toString(),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+            //_buildName(),
+            _buildEmail(),
+            //_buildPhoneNumber(),
+            //_buildLocation(),
+            //_buildDetails(),
+            const SizedBox(height: 100),
+            /*DialogButton(child: const Text(
+              "Select File",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ), onPressed: selectFile),
+            Text(
+              text,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),*/
+            DialogButton(
+              child: const Text(
+                "Submit",
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+              onPressed: () async {
+                if (!_formKey.currentState!.validate()) {
+                  return;
+                }
+                _formKey.currentState!.save();
+                _url = await uploadFile();
+                data["url"] = _url;
+                // final CollectionReference _ref = _firestore.collection('user');
+                // DocumentReference documentRef = _ref.doc(userId).collection('data').doc();
+                // await documentRef.set(data).whenComplete(() => print("Added")).catchError((e)=>print(e));
+                //Database.addItem(data,_counter.toString());
+                list=[];
+                await Database.readItems(data["email"],list);
+                //var asStream = refDataInstance.push().child('volunteer-details').set(data).asStream();
 
+                Navigator.pop(context);
+                setState(() {
+                  _counter++;
+                  //list.add({"name":data["name"],"email":data["email"],"phoneNumber":data["phoneNumber"],"location":data["location"],"details":data["details"],"url":data["url"]});
+                });
+                //_updateListRead();
+                //Send to API
+              },
+            ),
+          ],
+        ),
+      ),
+    ).show();
+  }
   _openPopup(context,text) {
     fileName = file != null ? basename(file!.path) : 'No File Selected';
     _checkConnectivityState();
@@ -334,6 +396,8 @@ class _MyHomePageState extends State<MyHomePage> {
       _counter++;
       list.add({"name":data["name"],"email":data["email"],"phoneNumber":data["phoneNumber"],"location":data["location"],"details":data["details"],"url":data["url"]});
     });
+
+
     // final destination = 'files/$fileName';
     //
     // task = uploadBytes(destination, data);
@@ -412,12 +476,32 @@ class _MyHomePageState extends State<MyHomePage> {
           ])).toList(),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        tooltip: 'Increment',
-        onPressed: ()=>_openPopup(context,text),
-        child: const Icon(Icons.add),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned(
+            left: 300,
+            bottom: 20,
+            child: FloatingActionButton(
+              tooltip: 'Increment',
+              onPressed: ()=>_openPopup(context,text),
+              child: const Icon(Icons.add),
+            )
+          ),
+          Positioned(
+              left: 30,
+              bottom: 20,
+              child: FloatingActionButton(
+                tooltip: 'Search',
+                onPressed: ()=>_openPopupForSearch(context,text),
+                child: const Icon(Icons.search),
+              )
+          ),
+        ]
       ),
       // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
+
